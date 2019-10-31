@@ -1,4 +1,20 @@
 #!/bin/bash
+
+usage()
+{
+  echo "Usage: $0 [-u <username>] [ -p password ]"
+  exit 2
+}
+
+while getopts 'u:p:h' c
+do
+  case $c in
+    u) USERNAME=SAVE ;;
+    p) PASSWORD=RESTORE ;;
+    h|?) usage ;;
+  esac
+done
+
 RINGZER0_URL="https://ringzer0ctf.com/login"
 LOGIN_FORM="\"username=arnecdn&password=test124\""
 LOGIN_HTTP_CONTENTTYPE=""
