@@ -11,22 +11,6 @@ do
   esac
 done
 
-function hash() {
-    python3 - <<END
-import hashlib
-
-print(hashlib.sha512("$1".encode('utf-8')).hexdigest())
-END
-}
-
-function bin_to_number() {
-python3 - <<END
-import binascii
-n = int("$1".replace(' ', ''), 2)
-print(n)
-END
-}
-
 GET_CHALLENGE=$(curl -sb PHPSESSID=$SESSIONID $RINGZER0_URL_CHALLENGE)
 CHALLENGE_MESSAGE=$(parse_message "$GET_CHALLENGE")
 #echo $CHALLENGE_MESSAGE
