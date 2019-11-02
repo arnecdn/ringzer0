@@ -1,39 +1,49 @@
 #!/bin/bash
-usage()
-{
-  echo "Usage: $0 [-s <PHPSESSID>] Solves CTF challenge https://ringzer0ctf.com/challenges/14"
-  exit 2
-}
+. script_challenge_function.sh
+
+RINGZER0_URL_CHALLENGE="https://ringzer0ctf.com/challenges/32"
 
 while getopts 's:' c
 do
   case $c in
     s) SESSIONID=$OPTARG ;;
-    h|?) usage ;;
+    h|?) usage "$RINGZER0_URL_CHALLENGE";;
   esac
 done
-
-RINGZER0_URL_CHALLENGE="https://ringzer0ctf.com/challenges/14"
-
-GET_CHALLENGE=$(curl -sb PHPSESSID=$SESSIONID $RINGZER0_URL_CHALLENGE)
-GET_CHALLENGE=$(echo $GET_CHALLENGE| sed -e 's/\r//g' -e 's/<br \/>//g')
-GET_CHALLENGE=${GET_CHALLENGE##*----- BEGIN MESSAGE ----- }
-GET_CHALLENGE=${GET_CHALLENGE%% ----- END MESSAGE -----*}
-#echo $GET_CHALLENGE
 
 function hash() {
     python3 - <<END
 import hashlib
-import binascii
-n = int("$GET_CHALLENGE".replace(' ', ''), 2)
-sha512text = n.to_bytes((n.bit_length() + 7) // 8, 'big').decode()
 
-print(hashlib.sha512(sha512text.encode('utf-8')).hexdigest())
+print(hashlib.sha512("$1".encode('utf-8')).hexdigest())
 END
 }
 
-GET_CHALLENGE_WITH_HASH=$(curl -sb PHPSESSID=$SESSIONID $RINGZER0_URL_CHALLENGE/$(hash))
-GET_CHALLENGE_WITH_HASH=${GET_CHALLENGE_WITH_HASH##*<div class=\"alert alert-info\">}
-GET_CHALLENGE_WITH_HASH=${GET_CHALLENGE_WITH_HASH%%</div>*}
+function bin_to_number() {
+python3 - <<END
+import binascii
+n = int("$1".replace(' ', ''), 2)
+print(n)
+END
+}
 
-echo $GET_CHALLENGE_WITH_HASH
+GET_CHALLENGE=$(curl -sb PHPSESSID=$SESSIONID $RINGZER0_URL_CHALLENGE)
+CHALLENGE_MESSAGE=$(parse_message "$GET_CHALLENGE")
+#echo $CHALLENGE_MESSAGE
+
+DECIMAL_NUMBER=${CHALLENGE_MESSAGE%+*}
+#echo $DECIMAL_NUMBER
+
+HEX_NUMBER=${CHALLENGE_MESSAGE#*+}
+HEX_NUMBER=${HEX_NUMBER%-*}
+#echo $(($HEX_NUMBER))
+
+BIN_NUMBER=${CHALLENGE_MESSAGE#*-}
+BIN_NUMBER=${BIN_NUMBER%=*}
+BIN_NUMBER=$(bin_to_number "$BIN_NUMBER")
+#echo $BIN_NUMBER
+
+ANSWER=$(($DECIMAL_NUMBER + $HEX_NUMBER - $BIN_NUMBER))
+GET_CHALLENGE_WITH_HASH=$(curl -sb PHPSESSID=$SESSIONID $RINGZER0_URL_CHALLENGE/$ANSWER)
+CHALENGE_FLAG=$(parse_flag "$GET_CHALLENGE_WITH_HASH")
+echo $CHALENGE_FLAG
