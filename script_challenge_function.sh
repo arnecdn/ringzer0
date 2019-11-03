@@ -4,20 +4,19 @@ usage(){
 }
 
 function parse_message(){
-    challenge_response=$(echo $1 | sed -e 's/\r//g' -e 's/<br \/>//g')
-    challenge_response=${challenge_response##*----- BEGIN MESSAGE ----- }
-    challenge_response=${challenge_response%% ----- END MESSAGE -----*}
-    echo $challenge_response
+    echo $(parse_content_between_tags "$1" "----- BEGIN MESSAGE ----- " "----- END MESSAGE -----")
 }
-
 
 function parse_flag(){
-    flag=$(echo $1| sed -e 's/\r//g' -e 's/<br \/>//g')
-    flag=${flag##*<div class=\"alert alert-info\">}
-    flag=${flag%%</div>*}
-    echo $flag
+    echo $(parse_content_between_tags "$1" "<div class=\"alert alert-info\">" "</div>")
 }
 
+function parse_content_between_tags(){
+    content=$(echo $1| sed -e 's/\r//g' -e 's/<br \/>//g')
+    content=${content##*$2}
+    content=${content%%$3*}
+    echo $content
+}
 
 function hash() {
     python3 - <<END
