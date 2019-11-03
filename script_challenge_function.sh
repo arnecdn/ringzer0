@@ -3,6 +3,10 @@ usage(){
   exit 2
 }
 
+function parse_hash(){
+    echo $(parse_content_between_tags "$1" "----- BEGIN HASH ----- " "----- END HASH -----")
+}
+
 function parse_message(){
     echo $(parse_content_between_tags "$1" "----- BEGIN MESSAGE ----- " "----- END MESSAGE -----")
 }
