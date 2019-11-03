@@ -18,7 +18,7 @@ function parse_content_between_tags(){
     echo $content
 }
 
-function hash() {
+function sha512_encode() {
     python3 - <<END
 import hashlib
 print(hashlib.sha512("$1".encode('utf-8')).hexdigest())
