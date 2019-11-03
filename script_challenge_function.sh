@@ -21,7 +21,6 @@ function parse_content_between_tags(){
 function hash() {
     python3 - <<END
 import hashlib
-
 print(hashlib.sha512("$1".encode('utf-8')).hexdigest())
 END
 }
@@ -29,7 +28,6 @@ END
 function bin_to_number() {
 python3 - <<END
 import binascii
-n = int("$1".replace(' ', ''), 2)
-print(n)
+print(int("$1".replace(' ', ''), 2))
 END
 }
